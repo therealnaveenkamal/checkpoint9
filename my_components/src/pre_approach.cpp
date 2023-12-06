@@ -34,8 +34,9 @@ PreApproach::PreApproach(const rclcpp::NodeOptions &options)
 void PreApproach::scan_callback(
     const sensor_msgs::msg::LaserScan::SharedPtr msg) {
 
-  double obs = 0.3;
-  int deg = -90;
+if(operation){
+  double obs = 0.4;
+  int deg = -95;
 
   RCLCPP_INFO(get_logger(), "Target: %f; Curr: %f", obs, msg->ranges[540]);
 
@@ -67,11 +68,14 @@ void PreApproach::scan_callback(
       cmd_vel_msg.angular.z = 0.0;
       cmd_vel_msg.linear.x = 0.0;
       cmd_vel_publisher_->publish(cmd_vel_msg);
-      rclcpp::shutdown();
+      RCLCPP_INFO(this->get_logger(),
+                  "Pre-Operation Successful!");
+      operation = false;
     }
   }
 
   cmd_vel_publisher_->publish(cmd_vel_msg);
+}
 }
 
 void PreApproach::odom_callback(const nav_msgs::msg::Odometry::SharedPtr msg) {

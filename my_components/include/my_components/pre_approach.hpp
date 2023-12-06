@@ -30,6 +30,7 @@ private:
   double initial_yaw_;
   double target_yaw_;
   double current_yaw_;
+  bool operation = true;
 
 protected:
   void scan_callback(const sensor_msgs::msg::LaserScan::SharedPtr msg);
