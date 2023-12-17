@@ -14,6 +14,8 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
+#include "std_msgs/msg/string.hpp"
+
 
 class ApproachServiceServer : public rclcpp::Node {
 public:
@@ -41,7 +43,9 @@ public:
         std::bind(&ApproachServiceServer::timer_callback, this));
 
     elevator_publisher =
-        this->create_publisher<std_msgs::msg::Empty>("/elevator_up", 10);
+        this->create_publisher<std_msgs::msg::String>("/elevator_up", 10);
+    elevator_publisher_down =
+        this->create_publisher<std_msgs::msg::String>("/elevator_down", 10);
   }
 
 private:
@@ -60,7 +64,7 @@ private:
   bool ready = false;
   bool move_extra = false;
   bool elevated = false;
-  int extratime = 9;
+  int extratime = 11;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -71,7 +75,9 @@ private:
 
   rclcpp::Service<attach_shelf::srv::GoToLoading>::SharedPtr approach_service_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster;
-  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr elevator_publisher;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr elevator_publisher;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr elevator_publisher_down;
+  
 
   void handle_approach_request(
       const std::shared_ptr<attach_shelf::srv::GoToLoading::Request> request,
@@ -102,21 +108,27 @@ private:
   void timer_callback() {
     if (move_extra && !elevated) {
       if (extratime >= 0) {
-        //RCLCPP_INFO(this->get_logger(), "Move 30 cm INIT: %d", extratime);
+        RCLCPP_INFO(this->get_logger(), "Move 30 cm INIT: %d", extratime);
         geometry_msgs::msg::Twist cmd_vel_msg;
         cmd_vel_msg.angular.z = 0.0;
         cmd_vel_msg.linear.x = 0.1;
         cmd_vel_publisher_->publish(cmd_vel_msg);
         extratime--;
       } else {
-        //RCLCPP_INFO(this->get_logger(), "Elevation Start");
+        RCLCPP_INFO(this->get_logger(), "Elevation Start");
         geometry_msgs::msg::Twist cmd_vel_msg;
         cmd_vel_msg.angular.z = 0.0;
         cmd_vel_msg.linear.x = 0.0;
         cmd_vel_publisher_->publish(cmd_vel_msg);
 
-        std_msgs::msg::Empty msg;
+        std_msgs::msg::String msg;
         elevator_publisher->publish(msg);
+
+        RCLCPP_INFO(this->get_logger(), "Elevation Successful");
+
+        std_msgs::msg::String msg1;
+        elevator_publisher_down->publish(msg1);
+        
         elevated = true;
       }
     }

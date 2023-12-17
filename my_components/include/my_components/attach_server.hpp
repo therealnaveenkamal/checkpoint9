@@ -26,7 +26,7 @@
 #include <tf2_ros/buffer.h>
 #include <tf2_ros/transform_broadcaster.h>
 #include <tf2_ros/transform_listener.h>
-
+#include "std_msgs/msg/string.hpp"
 
 namespace my_components {
 
@@ -49,7 +49,7 @@ private:
   bool ready = false;
   bool move_extra = false;
   bool elevated = false;
-  int extratime = 10;
+  int extratime = 12;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -60,7 +60,8 @@ private:
 
   rclcpp::Service<attach_shelf::srv::GoToLoading>::SharedPtr approach_service_;
   std::shared_ptr<tf2_ros::TransformBroadcaster> broadcaster;
-  rclcpp::Publisher<std_msgs::msg::Empty>::SharedPtr elevator_publisher;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr elevator_publisher;
+  rclcpp::Publisher<std_msgs::msg::String>::SharedPtr elevator_publisher_down;
 
 protected:
   void handle_approach_request(

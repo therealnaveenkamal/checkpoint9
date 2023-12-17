@@ -27,7 +27,9 @@ AttachServer::AttachServer(const rclcpp::NodeOptions &options)
                               std::bind(&AttachServer::timer_callback, this));
 
   elevator_publisher =
-      this->create_publisher<std_msgs::msg::Empty>("/elevator_up", 10);
+      this->create_publisher<std_msgs::msg::String>("/elevator_up", 10);
+      elevator_publisher_down =
+      this->create_publisher<std_msgs::msg::String>("/elevator_down", 10);
 }
 
 void AttachServer::handle_approach_request(
@@ -59,7 +61,7 @@ void AttachServer::handle_approach_request(
 void AttachServer::timer_callback() {
   if (move_extra && !elevated) {
     if (extratime >= 0) {
-      RCLCPP_INFO(this->get_logger(), "Move 30 cm INIT: %d", extratime);
+      //RCLCPP_INFO(this->get_logger(), "Move 30 cm INIT: %d", extratime);
       geometry_msgs::msg::Twist cmd_vel_msg;
       cmd_vel_msg.angular.z = 0.0;
       cmd_vel_msg.linear.x = 0.18;
@@ -72,8 +74,13 @@ void AttachServer::timer_callback() {
       cmd_vel_msg.linear.x = 0.0;
       cmd_vel_publisher_->publish(cmd_vel_msg);
 
-      std_msgs::msg::Empty msg;
+      std_msgs::msg::String msg;
       elevator_publisher->publish(msg);
+      RCLCPP_INFO(this->get_logger(), "Elevation Successfull");
+      std::this_thread::sleep_for(std::chrono::seconds(2));
+      std_msgs::msg::String msg1;
+      elevator_publisher_down->publish(msg1);
+
       elevated = true;
       RCLCPP_INFO(this->get_logger(),
                   "Attach Operation Successful, Shutting Down!");
