@@ -60,7 +60,7 @@ private:
   bool ready = false;
   bool move_extra = false;
   bool elevated = false;
-  int extratime = 8;
+  int extratime = 9;
 
   std::shared_ptr<tf2_ros::Buffer> tf_buffer;
   std::shared_ptr<tf2_ros::TransformListener> tf_listener_;
@@ -102,14 +102,14 @@ private:
   void timer_callback() {
     if (move_extra && !elevated) {
       if (extratime >= 0) {
-        RCLCPP_INFO(this->get_logger(), "Move 30 cm INIT: %d", extratime);
+        //RCLCPP_INFO(this->get_logger(), "Move 30 cm INIT: %d", extratime);
         geometry_msgs::msg::Twist cmd_vel_msg;
         cmd_vel_msg.angular.z = 0.0;
         cmd_vel_msg.linear.x = 0.1;
         cmd_vel_publisher_->publish(cmd_vel_msg);
         extratime--;
       } else {
-        RCLCPP_INFO(this->get_logger(), "Elevation Start");
+        //RCLCPP_INFO(this->get_logger(), "Elevation Start");
         geometry_msgs::msg::Twist cmd_vel_msg;
         cmd_vel_msg.angular.z = 0.0;
         cmd_vel_msg.linear.x = 0.0;
